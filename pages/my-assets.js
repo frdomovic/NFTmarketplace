@@ -17,6 +17,10 @@ export default function MyAssets() {
 
   async function loadNFTs() {
     const web3Modal = new Web3Modal();
+    /*{
+      network: "mainnet",
+      cacheProvider: true,
+    })*/
     const connection = await web3Modal.connect();
     const provider = new ethers.providers.Web3Provider(connection);
     const signer = provider.getSigner();
@@ -33,7 +37,7 @@ export default function MyAssets() {
     const items = await Promise.all(
       data.map(async (i) => {
         const tokenUri = await tokenContract.tokenURI(i.tokenId);
-        const meta = await fetch(tokenUri, { mode: "cors" });
+        const meta = await axios.get(tokenUri);
 
         let price = ethers.utils.formatUnits(i.price.toString(), "ether");
         let item = {
@@ -51,27 +55,29 @@ export default function MyAssets() {
     setNfts(items);
     setLoadingState("loaded");
 
-    if (loadingState === "loaded" && !nfts.length) {
-      return <h1 className="px-20 py-10 text-3xl">No assets owned</h1>;
-    }
+    
+  }
+  console.log(nfts.length);
+  if (loadingState === "loaded" && !nfts.length) {
+    return <h1 className="px-20 py-10 text-3xl">No assets owned</h1>;
+  }
 
-    return (
-      <div className="flex justify-center">
-        <div className="p-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4">
-            {nfts.map((nft, i) => (
-              <div key={i} className="border shadow rounded-xl overflow-hidden">
-                <img src={nft.image} className="rounded" />
-                <div className="p-4 bg-black">
-                  <p className="text-2xl font-bold text-white">
-                    Price - {nft.price} MATIC
-                  </p>
-                </div>
+  return (
+    <div className="flex justify-center">
+      <div className="p-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4">
+          {nfts.map((nft, i) => (
+            <div key={i} className="border shadow rounded-xl overflow-hidden">
+              <img src={nft.image} className="rounded" />
+              <div className="p-4 bg-black">
+                <p className="text-2xl font-bold text-white">
+                  Price - {nft.price} MATIC
+                </p>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       </div>
-    );
-  }
+    </div>
+  );
 }
